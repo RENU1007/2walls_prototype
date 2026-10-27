@@ -3,85 +3,2398 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2Walls Bengaluru | Map-First Rent & Sale Space Discovery</title>
+    
+    <!-- ============================================================================
+         GOOGLE ADSENSE GLOBAL SCRIPT (PASTE YOUR PUBLISHER ID BELOW WHEN APPROVED)
+         Replace ca-pub-XXXXXXXXXXXXXXXX with your live Google AdSense Publisher ID
+    ============================================================================= -->
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
 
-    <title>Deployment Practice</title>
-     <link rel="stylesheet" href="style.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Leaflet.js CSS & JS for Interactive Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            500: '#f43f5e',
+                            600: '#e11d48', // Primary Coral/Crimson
+                            700: '#be123c',
+                        },
+                        india: {
+                            emerald: '#059669',
+                            amber: '#d97706',
+                            indigo: '#4f46e5'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Custom Airbnb-style Map Price Pill Markers */
+        .price-marker-pill {
+            background: #ffffff;
+            color: #0f172a;
+            font-weight: 800;
+            font-size: 13px;
+            padding: 5px 11px;
+            border-radius: 9999px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0,0,0,0.08);
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transform-origin: center bottom;
+        }
+        .price-marker-pill.sale-pill {
+            border: 1.5px solid #4f46e5;
+            color: #312e81;
+        }
+        .price-marker-pill.rent-pill {
+            border: 1.5px solid #e11d48;
+            color: #881337;
+        }
+        .price-marker-pill:hover,
+        .price-marker-pill.active-marker {
+            background: #0f172a !important;
+            color: #ffffff !important;
+            border-color: #0f172a !important;
+            transform: scale(1.15) translateY(-3px);
+            z-index: 9999 !important;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.28);
+        }
+
+        /* Leaflet Popup Overrides */
+        .leaflet-popup-content-wrapper {
+            padding: 0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .leaflet-popup-content {
+            margin: 0 !important;
+            width: 270px !important;
+        }
+        .leaflet-container {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            z-index: 10;
+        }
+
+        /* Hide scrollbar for category bar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
 </head>
+<body class="bg-slate-50 text-slate-900 flex flex-col h-screen overflow-hidden">
 
-<body>
-
-    <header>
-        <div class="logo">DeployLab</div>
-
-        <nav>
-            #homeHome</a>
-            #aboutAbout</a>
-            #contactContact</a>
-        </nav>
-    </header>
-
-
-    <section class="hero" id="home">
-
-        <h1>Welcome to My Website</h1>
-
-        <p>
-            This is a simple static website created for
-            DevOps deployment practice.
-        </p>
-
-        #aboutLearn More</a>
-
-    </section>
-
-
-    <section class="about" id="about">
-
-        <h2>About This Website</h2>
-
-        <p>
-            I created this website to practice Linux,
-            Git, GitHub, Nginx and AWS deployment.
-        </p>
-
-        <div class="cards">
-
-            <div class="card">
-                <h3>HTML</h3>
-                <p>Provides the structure of the website.</p>
+    <!-- ==================== TOP NAVIGATION BAR ==================== -->
+    <header class="bg-white border-b border-slate-200 z-30 shrink-0">
+        <div class="max-w-[1920px] mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-3">
+            
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="resetFiltersAndFlyHome()">
+                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-brand-600 to-amber-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                    <i class="fa-solid fa-house-chimney-window text-lg sm:text-xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900">2Walls</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Bengaluru Live
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 hidden sm:block -mt-0.5 font-medium">Zero-Brokerage Map Discovery • All India Expanding</p>
+                </div>
             </div>
 
-            <div class="card">
-                <h3>CSS</h3>
-                <p>Provides styling and layout.</p>
+            <!-- Center Mode Toggle (Rent Space vs Buy/Sale Space) -->
+            <div class="flex items-center bg-slate-100 p-1 rounded-full border border-slate-200 shadow-inner">
+                <button id="modeRentBtn" onclick="setListingMode('rent')" class="flex items-center gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all bg-brand-600 text-white shadow-sm">
+                    <i class="fa-solid fa-key"></i>
+                    <span>Rent Space</span>
+                </button>
+                <button id="modeSaleBtn" onclick="setListingMode('sale')" class="flex items-center gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900">
+                    <i class="fa-solid fa-building-circle-check"></i>
+                    <span>Buy / Sale</span>
+                </button>
             </div>
 
-            <div class="card">
-                <h3>DevOps</h3>
-                <p>Used to build and deploy the application.</p>
+            <!-- City Selector (Bengaluru Live + All India Waitlist) & Search Bar (Desktop) -->
+            <div class="hidden xl:flex items-center bg-white border border-slate-300 hover:border-slate-400 rounded-full px-3 py-1.5 shadow-sm transition-all gap-2">
+                <div class="flex items-center gap-1.5 pl-2 border-r border-slate-200 pr-3">
+                    <i class="fa-solid fa-location-dot text-brand-600 text-sm"></i>
+                    <select id="citySelect" onchange="handleCityChange(this.value)" class="text-xs sm:text-sm font-bold text-slate-800 bg-transparent focus:outline-none cursor-pointer">
+                        <option value="bengaluru">🟢 Bengaluru (Live Launch)</option>
+                        <optgroup label="🚀 All-India Expansion (Preview / Waitlist)">
+                            <option value="chennai">⏳ Chennai (Expanding Soon)</option>
+                            <option value="hyderabad">⏳ Hyderabad (Expanding Soon)</option>
+                            <option value="coimbatore">⏳ Coimbatore (Expanding Soon)</option>
+                            <option value="madurai">⏳ Madurai (Expanding Soon)</option>
+                            <option value="mumbai">⏳ Mumbai / Pune (Expanding Soon)</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2 pl-1 pr-2">
+                    <input id="searchInput" oninput="applyFilters()" type="text" placeholder="Search Indiranagar, Whitefield, A-Khata, 2BHK..." class="text-sm w-60 focus:outline-none text-slate-700 placeholder-slate-400">
+                    <button onclick="applyFilters()" class="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center hover:bg-brand-700 transition">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </button>
+                </div>
             </div>
 
+            <!-- Right Actions: AdSense Preview Toggle, Setup Guide, Post Space, User Auth -->
+            <div class="flex items-center gap-2">
+                <!-- AdSense Slot Preview Toggle -->
+                <button id="adSenseToggleBtn" onclick="toggleAdSensePreview()" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-extrabold bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100 transition" title="Toggle Google AdSense Placement Preview">
+                    <i class="fa-brands fa-google text-amber-600"></i>
+                    <span id="adSenseToggleText">AdSense Slots: ON</span>
+                </button>
+
+                <!-- AdSense & Deploy Guide Modal Button -->
+                <button onclick="openDeployGuideModal()" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition" title="Google AdSense & Map Setup Guide">
+                    <i class="fa-solid fa-coins text-emerald-600"></i>
+                    <span>AdSense & Map Info</span>
+                </button>
+
+                <button onclick="handlePostSpaceClick()" class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-bold bg-slate-900 hover:bg-slate-800 text-white shadow-sm transition">
+                    <i class="fa-solid fa-plus text-amber-400"></i>
+                    <span class="hidden sm:inline">Post Your Space</span>
+                    <span class="sm:hidden">Post</span>
+                </button>
+
+                <!-- Auth Profile / Login Trigger -->
+                <div id="authHeaderContainer">
+                    <button onclick="openAuthModal()" class="flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-300 rounded-full py-1.5 px-3 shadow-sm transition">
+                        <i class="fa-solid fa-bars text-slate-600 text-xs sm:text-sm"></i>
+                        <div class="w-7 h-7 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xs">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <span class="text-xs font-bold text-slate-700 hidden md:inline">Login / OTP</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
-    </section>
+        <!-- Mobile Search & City Switcher Bar -->
+        <div class="xl:hidden px-4 pb-2.5 flex items-center gap-2">
+            <div class="flex items-center bg-slate-100 rounded-xl px-2.5 py-1.5 border border-slate-200 shrink-0">
+                <i class="fa-solid fa-location-dot text-brand-600 text-xs mr-1.5"></i>
+                <select id="mobileCitySelect" onchange="handleCityChange(this.value)" class="text-xs font-bold text-slate-800 bg-transparent focus:outline-none">
+                    <option value="bengaluru">🟢 Bengaluru (Live)</option>
+                    <option value="chennai">⏳ Chennai (Soon)</option>
+                    <option value="hyderabad">⏳ Hyderabad (Soon)</option>
+                    <option value="coimbatore">⏳ Coimbatore (Soon)</option>
+                    <option value="madurai">⏳ Madurai (Soon)</option>
+                    <option value="mumbai">⏳ Mumbai (Soon)</option>
+                </select>
+            </div>
+            <div class="relative flex-1">
+                <input id="mobileSearchInput" oninput="syncMobileSearch(this.value)" type="text" placeholder="Search Indiranagar, HSR, Whitefield, 2BHK..." class="w-full bg-slate-100 border border-slate-200 rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:bg-white focus:border-brand-500">
+                <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs absolute left-2.5 top-2"></i>
+            </div>
+        </div>
 
+        <!-- Sub-Header: Category Filter & Indian Real Estate Badges -->
+        <div class="border-t border-slate-100 bg-white px-4 sm:px-6 py-2 flex items-center justify-between gap-4 overflow-x-auto no-scrollbar">
+            
+            <!-- Category Pills -->
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0" id="categoryFilterContainer">
+                <button onclick="setCategoryFilter('all')" data-cat="all" class="cat-btn active px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 bg-slate-900 text-white transition">
+                    <i class="fa-solid fa-border-all"></i> All Spaces
+                </button>
+                <button onclick="setCategoryFilter('Flat / Apartment')" data-cat="Flat / Apartment" class="cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                    <i class="fa-solid fa-building"></i> 1/2/3 BHK Flats
+                </button>
+                <button onclick="setCategoryFilter('Independent House')" data-cat="Independent House" class="cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                    <i class="fa-solid fa-house"></i> Independent House / Villa
+                </button>
+                <button onclick="setCategoryFilter('PG / Co-living')" data-cat="PG / Co-living" class="cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                    <i class="fa-solid fa-bed"></i> PG & Co-Living
+                </button>
+                <button onclick="setCategoryFilter('Commercial Space')" data-cat="Commercial Space" class="cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                    <i class="fa-solid fa-shop"></i> Commercial / Office
+                </button>
+                <button onclick="setCategoryFilter('Plot / Land')" data-cat="Plot / Land" class="cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                    <i class="fa-solid fa-map-location-dot"></i> Plots & Land
+                </button>
+            </div>
 
-    <section class="contact" id="contact">
+            <!-- Quick Indian Market Filters -->
+            <div class="flex items-center gap-2 shrink-0 border-l border-slate-200 pl-3">
+                <button id="filterZeroBrokerage" onclick="toggleTagFilter('noBrokerage')" class="px-3 py-1 rounded-full text-xs font-semibold border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-handshake-slash text-emerald-600"></i> Direct Owner (No Brokerage)
+                </button>
+                <button id="filterBachelor" onclick="toggleTagFilter('bachelorFriendly')" class="px-3 py-1 rounded-full text-xs font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-user-group text-indigo-500"></i> Bachelor Friendly
+                </button>
+                <button id="filterMetro" onclick="toggleTagFilter('nearMetro')" class="px-3 py-1 rounded-full text-xs font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-train-subway text-brand-600"></i> Near Metro
+                </button>
+                <button id="filterSavedOnly" onclick="toggleTagFilter('savedOnly')" class="px-3 py-1 rounded-full text-xs font-semibold border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-heart text-rose-500"></i> Saved (<span id="savedCountBadge">0</span>)
+                </button>
+            </div>
+        </div>
+    </header>
 
-        <h2>Contact</h2>
+    <!-- ==================== MAIN SPLIT-SCREEN CONTENT (LIST + MAP) ==================== -->
+    <main class="flex-1 flex relative overflow-hidden">
+        
+        <!-- LEFT / FULL LIST PANEL -->
+        <section id="listPanel" class="w-full lg:w-[54%] xl:w-[52%] h-full overflow-y-auto px-4 sm:px-6 py-4 bg-slate-50 transition-all duration-300">
+            
+            <!-- All-India Expansion Waitlist Banner (Shown when user selects a Coming Soon city) -->
+            <div id="expansionWaitlistBanner" class="hidden mb-4 p-4 rounded-2xl bg-gradient-to-r from-indigo-900 via-slate-900 to-brand-900 text-white shadow-lg border border-indigo-700/50">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-400 text-slate-900">Phase 2 Expansion</span>
+                        <h3 class="text-sm sm:text-base font-extrabold mt-1">2Walls is Launching First in Bengaluru — Expanding to <span id="expansionCityName">Chennai</span> Soon!</h3>
+                        <p class="text-xs text-slate-300 mt-0.5">Preview sample spaces below or join the priority landlord/tenant launch list.</p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="joinCityWaitlist()" class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs transition shadow">
+                            Notify Me on Launch
+                        </button>
+                        <button onclick="handleCityChange('bengaluru')" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition">
+                            Back to Bengaluru
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-        <p>This is a sample contact section.</p>
+            <!-- Neighborhood Quick Jump Chips -->
+            <div class="mb-4 flex items-center justify-between flex-wrap gap-2">
+                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="localityQuickBar">
+                    <!-- Populated dynamically based on city -->
+                </div>
+                <div class="text-xs font-semibold text-slate-500 shrink-0">
+                    Showing <span id="resultsCount" class="font-extrabold text-slate-900">0</span> verified spaces
+                </div>
+            </div>
 
-        <p>Email: example@email.com</p>
+            <!-- Property Grid (With Native In-Feed Google AdSense Cards Injected Every 3 Listings) -->
+            <div id="propertiesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-5 pb-10">
+                <!-- Populated by JS -->
+            </div>
 
-    </section>
+            <!--Empty State -->
+            <div id="emptyState" class="hidden bg-white rounded-2xl border border-slate-200 p-10 text-center my-6">
+                <div class="w-14 h-14 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center mx-auto mb-3 text-2xl">
+                    <i class="fa-solid fa-map-pin"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">No spaces in this exact map area or filter</h3>
+                <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">Try zooming out on the Bengaluru map, unchecking "Search as I move the map", or resetting your category filters.</p>
+                <button onclick="resetAllFilters()" class="mt-4 px-4 py-2 rounded-full bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition">
+                    Reset All Filters & Zoom to Bengaluru
+                </button>
+            </div>
 
+            <!-- SLOT 3: HORIZONTAL FOOTER / SIDEBAR GOOGLE ADSENSE DISPLAY UNIT -->
+            <div id="footerAdSenseContainer" class="mb-24 mt-2">
+                <div class="bg-white rounded-2xl border border-amber-200/90 p-4 shadow-sm relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">
+                            Sponsored • Google AdSense Display Unit (728x90 / Responsive)
+                        </span>
+                        <button onclick="openDeployGuideModal()" class="text-[11px] font-bold text-indigo-600 hover:underline">
+                            How to link my AdSense ID?
+                        </button>
+                    </div>
+                    <!-- Official Google AdSense <ins> Tag Structure -->
+                    <ins class="adsbygoogle block"
+                         style="display:block"
+                         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                         data-ad-slot="9988776655"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
+                    
+                    <!-- Visual Mock Preview of High-CPC Indian Real Estate Ad -->
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-slate-50 to-indigo-50/50 p-3.5 rounded-xl border border-slate-200/80">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl shrink-0 shadow">
+                                <i class="fa-solid fa-building-columns"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-extrabold text-slate-900">SBI & HDFC Bengaluru Home Loans @ 8.35% p.a.*</div>
+                                <p class="text-[11px] text-slate-600 mt-0.5">Instant Digital Sanction for BBMP A-Khata & BDA Approved Flats in Bengaluru. Zero Processing Fee.</p>
+                            </div>
+                        </div>
+                        <a href="#adsense-demo" onclick="event.preventDefault(); showToast('High-CPC Google AdSense Click Simulated! (Est. ₹25–₹65 per click in Indian Real Estate)');" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shrink-0 transition shadow-sm">
+                            Check Eligibility <i class="fa-solid fa-up-right-from-square ml-1 text-[10px]"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <footer>
+        <!-- RIGHT INTERACTIVE LEAFLET MAP PANEL -->
+        <section id="mapPanel" class="hidden lg:block lg:w-[46%] xl:w-[48%] h-full relative bg-slate-200 border-l border-slate-200">
+            <div id="map" class="w-full h-full"></div>
 
-        <p>© 2026 DeployLab | Deployment Practice Website</p>
+            <!-- Floating Map Overlay Controls -->
+            <div class="absolute top-4 left-4 right-4 z-[400] flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+                <!-- Search As I Move Map Toggle -->
+                <div class="bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-lg border border-slate-200 pointer-events-auto flex items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-xs font-extrabold text-slate-800" id="mapOverlayTitle">Bengaluru Map</span>
+                    </div>
+                    <label class="flex items-center gap-1.5 text-xs font-bold text-slate-700 border-l border-slate-200 pl-3 cursor-pointer select-none">
+                        <input id="searchOnMoveCheckbox" type="checkbox" checked onchange="toggleSearchOnMove(this.checked)" class="rounded text-brand-600 focus:ring-brand-500 w-3.5 h-3.5">
+                        <span>Search as I move map</span>
+                    </label>
+                </div>
 
-    </footer>
+                <!-- Map Action Buttons: Layer Switch, GPS Near Me, Expand -->
+                <div class="flex items-center gap-2 pointer-events-auto">
+                    <button onclick="toggleMapTileStyle()" id="mapLayerBtn" class="bg-white hover:bg-slate-50 text-slate-800 px-3 py-2 rounded-xl shadow-lg border border-slate-200 text-xs font-bold flex items-center gap-1.5 transition" title="Switch Street / Satellite Hybrid Map">
+                        <i class="fa-solid fa-layer-group text-indigo-600"></i>
+                        <span id="mapLayerText">Satellite</span>
+                    </button>
+                    <button onclick="locateUserOnMap()" class="bg-white hover:bg-slate-50 text-slate-800 px-3 py-2 rounded-xl shadow-lg border border-slate-200 text-xs font-bold flex items-center gap-1.5 transition" title="Find spaces near my current GPS location">
+                        <i class="fa-solid fa-location-crosshairs text-brand-600"></i>
+                        <span>Near Me</span>
+                    </button>
+                    <button onclick="toggleFullMapDesktop()" id="expandMapBtn" class="hidden lg:flex bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl shadow-lg text-xs font-bold items-center gap-1.5 transition">
+                        <i class="fa-solid fa-expand"></i>
+                        <span id="expandMapText">Full Map</span>
+                    </button>
+                </div>
+            </div>
 
+            <!-- Map Legend Pill -->
+            <div class="absolute bottom-6 left-4 z-[400] bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl shadow-md border border-slate-200 flex items-center gap-3 text-[11px] font-bold">
+                <span class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-brand-600 inline-block"></span> Rent (/mo)
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-indigo-600 inline-block"></span> Buy (Lakhs/Cr)
+                </span>
+                <span class="text-slate-400 hidden sm:inline">|</span>
+                <span class="text-emerald-700 hidden sm:inline"><i class="fa-brands fa-google mr-1"></i>Google Maps Directions Linked</span>
+            </div>
+        </section>
+
+        <!-- RIGHT INTERACTIVE LEAFLET MAP PANEL -->
+        <section id="mapPanel" class="hidden lg:block lg:w-[46%] xl:w-[48%] h-full relative bg-slate-200 border-l border-slate-200">
+            <div id="map" class="w-full h-full"></div>
+
+            <!-- Floating Map Overlay Controls -->
+            <div class="absolute top-4 left-4 right-4 z-[400] flex items-center justify-between pointer-events-none">
+                <div class="bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-lg border border-slate-200 pointer-events-auto flex items-center gap-2.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-xs font-bold text-slate-800" id="mapOverlayTitle">Live Map • Bengaluru</span>
+                    <span class="text-[11px] text-slate-500 hidden sm:inline">| Click any price tag to inspect</span>
+                </div>
+
+                <div class="flex items-center gap-2 pointer-events-auto">
+                    <button onclick="locateUserOnMap()" class="bg-white hover:bg-slate-50 text-slate-800 px-3 py-2 rounded-xl shadow-lg border border-slate-200 text-xs font-bold flex items-center gap-1.5 transition" title="Find spaces near my current GPS location">
+                        <i class="fa-solid fa-location-crosshairs text-brand-600"></i>
+                        <span>Near Me</span>
+                    </button>
+                    <button onclick="toggleFullMapDesktop()" id="expandMapBtn" class="hidden lg:flex bg-slate-900 hover:bg-slate-800 text-white px-3 py-2 rounded-xl shadow-lg text-xs font-bold items-center gap-1.5 transition">
+                        <i class="fa-solid fa-expand"></i>
+                        <span id="expandMapText">Full Map</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Map Legend Pill -->
+            <div class="absolute bottom-6 left-4 z-[400] bg-white/95 backdrop-blur-md px-3 py-2 rounded-xl shadow-md border border-slate-200 flex items-center gap-3 text-[11px] font-bold">
+                <span class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-brand-600 inline-block"></span> Rent (/mo)
+                </span>
+                <span class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-indigo-600 inline-block"></span> Buy (Lakhs/Cr)
+                </span>
+            </div>
+        </section>
+
+        <!-- FLOATING MOBILE MAP / LIST TOGGLE BUTTON -->
+        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 lg:hidden">
+            <button onclick="toggleMobileView()" id="mobileViewToggleBtn" class="bg-slate-900 text-white px-5 py-3 rounded-full shadow-2xl font-bold text-xs flex items-center gap-2 border border-slate-700">
+                <i class="fa-solid fa-map-location-dot text-amber-400"></i>
+                <span id="mobileToggleText">Map View</span>
+            </button>
+        </div>
+    </main>
+
+    <!-- ==================== MODAL 1: AUTHENTICATION (GOOGLE + INDIAN MOBILE OTP) ==================== -->
+    <div id="authModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200 animate-fadeIn">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-gradient-to-r from-brand-600 to-rose-500 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+                        <i class="fa-solid fa-shield-halved text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-base">Welcome to 2Walls India</h3>
+                        <p class="text-[11px] text-rose-100">Verify via Mobile OTP or Google ID to connect with owners</p>
+                    </div>
+                </div>
+                <button onclick="closeAuthModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6">
+                <!-- Auth Method Tabs -->
+                <div class="grid grid-cols-2 bg-slate-100 p-1 rounded-xl mb-5">
+                    <button id="tabMobileAuth" onclick="switchAuthTab('mobile')" class="py-2 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-sm transition">
+                        <i class="fa-solid fa-mobile-screen-button text-brand-600 mr-1"></i> Mobile Number (+91)
+                    </button>
+                    <button id="tabGoogleAuth" onclick="switchAuthTab('google')" class="py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition">
+                        <i class="fa-brands fa-google text-rose-500 mr-1"></i> Google Mail ID
+                    </button>
+                </div>
+
+                <!-- TAB 1: INDIAN MOBILE NUMBER (+91) OTP FLOW -->
+                <div id="mobileAuthSection">
+                    <!-- Step 1: Enter 10-digit Mobile -->
+                    <div id="otpStep1">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Enter Your Indian Mobile Number</label>
+                        <div class="flex items-center border-2 border-slate-200 focus-within:border-brand-600 rounded-xl overflow-hidden transition">
+                            <div class="bg-slate-100 px-3.5 py-3 text-sm font-extrabold text-slate-700 border-r border-slate-200 flex items-center gap-1.5">
+                                <span>🇮🇳</span>
+                                <span>+91</span>
+                            </div>
+                            <input id="indianMobileInput" type="tel" maxlength="10" placeholder="98765 43210" class="w-full px-3.5 py-3 text-sm font-bold text-slate-900 focus:outline-none tracking-wider">
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-1.5">We'll send a 6-digit One Time Password (OTP) to verify your number.</p>
+
+                        <div class="mt-3">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Your Name (Optional)</label>
+                            <input id="mobileUserNameInput" type="text" placeholder="e.g., Karthik Raja / Priya Sharma" class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-brand-600">
+                        </div>
+
+                        <button onclick="sendMobileOTP()" class="w-full mt-5 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl text-sm shadow-lg shadow-brand-500/25 transition flex items-center justify-center gap-2">
+                            <span>Get OTP on Mobile</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Step 2: Enter 6-Digit OTP -->
+                    <div id="otpStep2" class="hidden">
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 mb-4 flex items-center justify-between">
+                            <div class="text-xs text-emerald-900">
+                                <span class="font-bold block">OTP Sent to +91 <span id="displaySentMobile"></span></span>
+                                <span class="text-[11px] text-emerald-700">Instant Demo OTP Code: <strong id="demoOtpDisplay" class="underline font-extrabold">482910</strong></span>
+                            </div>
+                            <button onclick="resetOtpFlow()" class="text-[11px] font-bold text-brand-600 hover:underline">Change</button>
+                        </div>
+
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Enter 6-Digit OTP</label>
+                        <input id="otpCodeInput" type="text" maxlength="6" placeholder="• • • • • •" class="w-full px-4 py-3 text-center text-lg font-extrabold tracking-[0.5em] border-2 border-slate-200 focus:border-brand-600 rounded-xl focus:outline-none">
+
+                        <button onclick="verifyMobileOTP()" class="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow-lg shadow-emerald-500/25 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Verify & Login Now</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TAB 2: GOOGLE MAIL ID AUTH -->
+                <div id="googleAuthSection" class="hidden">
+                    <div class="text-center py-3">
+                        <div class="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3 text-2xl">
+                            <i class="fa-brands fa-google text-rose-500"></i>
+                        </div>
+                        <h4 class="font-bold text-sm text-slate-800">Sign in with your Google Mail ID</h4>
+                        <p class="text-xs text-slate-500 mt-1">One-click login using Firebase Google Auth or instant Gmail verification.</p>
+                    </div>
+
+                    <!-- Real Firebase Google Popup Button -->
+                    <button onclick="signInWithGoogleAccount()" class="w-full mt-2 bg-white hover:bg-slate-50 text-slate-800 font-bold py-3 px-4 rounded-xl text-sm border-2 border-slate-200 shadow-sm transition flex items-center justify-center gap-3">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
+                        <span>Continue with Google Popup</span>
+                    </button>
+
+                    <div class="relative flex py-4 items-center">
+                        <div class="flex-grow border-t border-slate-200"></div>
+                        <span class="flex-shrink mx-3 text-[11px] font-semibold text-slate-400 uppercase">Or Enter Gmail Directly</span>
+                        <div class="flex-grow border-t border-slate-200"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Google Mail ID (@gmail.com)</label>
+                        <input id="directGmailInput" type="email" placeholder="yourname@gmail.com" class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-brand-600 mb-2.5">
+                        <input id="directGmailName" type="text" placeholder="Your Full Name" class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-brand-600">
+                        <button onclick="signInWithDirectGmail()" class="w-full mt-3 bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                            Continue with Gmail ID
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Footer Security Note -->
+                <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                    <span><i class="fa-solid fa-lock mr-1 text-emerald-600"></i> 100% Spam-Free Direct Owner Connect</span>
+                    <span>2Walls Verified</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 2: PROPERTY DETAILS & OWNER CONNECT ==================== -->
+    <div id="propertyDetailModal" class="fixed inset-0 bg-slate-900/65 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-6">
+        <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200">
+            <div id="propertyDetailContent">
+                <!-- Populated dynamically by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 3: POST YOUR SPACE (RENT OR SALE) ==================== -->
+    <div id="postPropertyModal" class="fixed inset-0 bg-slate-900/65 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-6">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-200">
+            
+            <div class="sticky top-0 bg-white z-10 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+                <div>
+                    <h3 class="font-extrabold text-lg text-slate-900">List Your Space on 2Walls Map</h3>
+                    <p class="text-xs text-slate-500">Reach direct tenants & buyers across India with zero brokerage</p>
+                </div>
+                <button onclick="closePostPropertyModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="postPropertyForm" onsubmit="submitNewProperty(event)" class="p-6 space-y-4">
+                
+                <!-- Listing Type & Category -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Listing Purpose *</label>
+                        <select id="postMode" onchange="updatePostPriceLabels()" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl font-semibold focus:outline-none focus:border-brand-600">
+                            <option value="rent">For Rent (Monthly Rental)</option>
+                            <option value="sale">For Sale / Buy (Full Ownership)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Property Category *</label>
+                        <select id="postCategory" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl font-semibold focus:outline-none focus:border-brand-600">
+                            <option value="Flat / Apartment">Flat / Apartment (1/2/3 BHK)</option>
+                            <option value="Independent House">Independent House / Villa</option>
+                            <option value="PG / Co-living">PG / Co-living Space</option>
+                            <option value="Commercial Space">Commercial Shop / Office</option>
+                            <option value="Plot / Land">Plot / Residential Land</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Property Title -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Property Title *</label>
+                    <input id="postTitle" required type="text" placeholder="e.g., Sunny 2BHK Corner Flat near Indiranagar Metro" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600">
+                </div>
+
+                <!-- City & Locality -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">City *</label>
+                        <select id="postCity" onchange="setPostDefaultCoords(this.value)" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl font-semibold focus:outline-none focus:border-brand-600">
+                            <option value="bengaluru">Bengaluru (Live Launch)</option>
+                            <option value="chennai">Chennai</option>
+                            <option value="hyderabad">Hyderabad</option>
+                            <option value="coimbatore">Coimbatore</option>
+                            <option value="madurai">Madurai</option>
+                            <option value="mumbai">Mumbai</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Bengaluru Locality / Area Name *</label>
+                        <input id="postLocality" required type="text" placeholder="e.g., HSR Layout Sector 2 / Whitefield" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600">
+                    </div>
+                </div>
+
+                <!-- Price, Deposit & Area -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label id="postPriceLabel" class="block text-xs font-bold text-slate-700 mb-1">Monthly Rent (₹) *</label>
+                        <input id="postPrice" required type="number" placeholder="e.g., 24000" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600">
+                    </div>
+                    <div>
+                        <label id="postDepositLabel" class="block text-xs font-bold text-slate-700 mb-1">Security Deposit / Info</label>
+                        <input id="postDeposit" type="text" placeholder="e.g., ₹1 Lakh / Negotiable" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Built-up Area (sq.ft) *</label>
+                        <input id="postSqft" required type="number" placeholder="e.g., 1150" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none focus:border-brand-600">
+                    </div>
+                </div>
+
+                <!-- BHK, Furnishing & Water Supply -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Configuration</label>
+                        <select id="postBhk" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none">
+                            <option value="2 BHK">2 BHK</option>
+                            <option value="1 BHK">1 BHK</option>
+                            <option value="3 BHK">3 BHK</option>
+                            <option value="1 RK / Studio">1 RK / Studio</option>
+                            <option value="Commercial Unit">Commercial Unit</option>
+                            <option value="Residential Plot">Residential Plot</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Furnishing Status</label>
+                        <select id="postFurnishing" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none">
+                            <option value="Semi-Furnished">Semi-Furnished</option>
+                            <option value="Fully Furnished">Fully Furnished</option>
+                            <option value="Unfurnished">Unfurnished</option>
+                            <option value="Ready to Construct">Ready to Construct</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Water Supply</label>
+                        <select id="postWater" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-none">
+                            <option value="24x7 Cauvery + Borewell">24x7 Cauvery + Borewell</option>
+                            <option value="BBMP Cauvery Water">BBMP Cauvery Water</option>
+                            <option value="24x7 Borewell + Tanker">24x7 Borewell + Tanker</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- INTERACTIVE MINI-MAP FOR LANDLORDS TO CLICK & DROP EXACT PIN -->
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-800">
+                            <i class="fa-solid fa-location-dot text-brand-600 mr-1"></i> Click on the Mini-Map to Drop Your Exact Building Pin
+                        </span>
+                        <button type="button" onclick="useCurrentMapCenterForPost()" class="text-[11px] font-bold text-indigo-600 hover:underline">
+                            Sync Main Map Center
+                        </button>
+                    </div>
+                    <!-- Mini Leaflet Picker Container -->
+                    <div id="postMiniMap" class="w-full h-44 rounded-xl border border-slate-300 mb-2.5 z-10"></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Latitude</label>
+                            <input id="postLat" required type="number" step="any" value="12.9716" oninput="updateMiniMapFromInputs()" class="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg font-mono">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Longitude</label>
+                            <input id="postLng" required type="number" step="any" value="77.5946" oninput="updateMiniMapFromInputs()" class="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg font-mono">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Indian Specific Checkboxes -->
+                <div class="flex flex-wrap gap-4 pt-1">
+                    <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                        <input id="postNoBrokerage" type="checkbox" checked class="rounded text-brand-600 focus:ring-brand-500">
+                        <span>Direct Owner (Zero Brokerage)</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                        <input id="postBachelor" type="checkbox" checked class="rounded text-brand-600 focus:ring-brand-500">
+                        <span>Bachelor Friendly</span>
+                    </label>
+                    <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                        <input id="postMetro" type="checkbox" class="rounded text-brand-600 focus:ring-brand-500">
+                        <span>Near Metro Station</span>
+                    </label>
+                </div>
+
+                <!-- Owner Contact -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-200">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Owner Name *</label>
+                        <input id="postOwnerName" required type="text" placeholder="Your Name" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Owner Mobile / WhatsApp (+91) *</label>
+                        <input id="postOwnerPhone" required type="tel" maxlength="10" placeholder="9876543210" class="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl">
+                    </div>
+                </div>
+    <!-- ==================== MODAL 4: GOOGLE ADSENSE & MAP ARCHITECTURE GUIDE ==================== -->
+    <div id="deployGuideModal" class="fixed inset-0 bg-slate-900/65 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[88vh] overflow-y-auto shadow-2xl border border-slate-200 p-6">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-4 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg">
+                        <i class="fa-solid fa-indian-rupee-sign"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-base text-slate-900">2Walls Google AdSense & Map Strategy Guide</h3>
+                        <p class="text-xs text-slate-500">How your Bengaluru launch earns revenue with ₹0 map API bills</p>
+                    </div>
+                </div>
+                <button onclick="closeDeployGuideModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 text-xs text-slate-700 leading-relaxed">
+                <!-- Section 1: Why AdSense works great for 2Walls -->
+                <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200">
+                    <h4 class="font-extrabold text-sm text-emerald-950 mb-1"><i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> 1. Is Earning via Google AdSense Alone a Good Plan?</h4>
+                    <p class="text-emerald-900 mb-2"><strong>Yes!</strong> In India, Real Estate, Home Loans (SBI/HDFC/ICICI), Interior Design (Livspace/HomeLane), and Packers & Movers have some of the <strong>highest CPC (Cost Per Click) rates</strong>—often <strong>₹18 to ₹65+ per click</strong> in Bengaluru.</p>
+                    <ul class="list-disc pl-5 space-y-1 text-emerald-900">
+                        <li><strong> slot 1 (In-Feed Native Ad):</strong> Placed naturally after every 3rd property card in the left list.</li>
+                        <li><strong>Slot 2 (Property Modal Ad):</strong> High-intent Home Loan / Movers ad right inside the property detail modal when users check prices.</li>
+                        <li><strong>Slot 3 (Footer Banner):</strong> Responsive horizontal banner at the bottom of the listing feed.</li>
+                        <li><strong>AdSense Policy Compliance:</strong> Ads are never placed floating over the map canvas or disguising navigation buttons, ensuring 100% Google policy safety.</li>
+                    </ul>
+                </div>
+
+                <!-- Section 2: Copy-Paste AdSense Snippet -->
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <h4 class="font-extrabold text-sm text-slate-900">2. Where to Paste Your Google AdSense Code</h4>
+                        <button onclick="copyAdSenseSnippet()" class="px-2.5 py-1 rounded-lg bg-slate-900 text-white text-[11px] font-bold hover:bg-slate-700">
+                            <i class="fa-regular fa-copy mr-1"></i> Copy Snippet
+                        </button>
+                    </div>
+                    <p class="mb-2">Once your domain (e.g., <code>2walls.in</code>) is approved on <span class="font-bold text-indigo-600">google.com/adsense</span>, replace <code>ca-pub-XXXXXXXXXXXXXXXX</code> in the <code>&lt;head&gt;</code> of this file with your Publisher ID:</p>
+                    <pre id="adSenseCodeBlock" class="bg-slate-900 text-emerald-400 p-3 rounded-xl overflow-x-auto text-[11px] font-mono">&lt;script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_PUBLISHER_ID" crossorigin="anonymous"&gt;&lt;/script&gt;</pre>
+                </div>
+
+                <!-- Section 3: Hybrid Map Architecture -->
+                <div class="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200">
+                    <h4 class="font-extrabold text-sm text-indigo-950 mb-1"><i class="fa-solid fa-map-location-dot text-indigo-600 mr-1"></i> 3. How the Map Works (Leaflet + Google Maps Navigation)</h4>
+                    <p class="text-indigo-900">Google Maps JavaScript API charges ~$7 per 1,000 loads (which can eat up your AdSense profits). Instead, 2Walls uses a smart <strong>Hybrid Map Architecture</strong>:</p>
+                    <ul class="list-disc pl-5 space-y-1 mt-1.5 text-indigo-900">
+                        <li><strong>Interactive Map Pins & Search-As-You-Move:</strong> Powered by <strong>Leaflet + OpenStreetMap / Esri Satellite</strong> (100% Free for unlimited traffic).</li>
+                        <li><strong>1-Click Google Maps Navigation:</strong> Every property card & detail popup has a <strong>"Directions on Google Maps"</strong> button that opens the official Google Maps app on the user's phone for turn-by-turn navigation at ₹0 API cost!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TOAST NOTIFICATION ==================== -->
+    <div id="toastNotification" class="fixed bottom-5 right-5 z-[100] hidden bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 text-xs font-bold transition-all">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+        <span id="toastMessage">Action completed!</span>
+    </div>
+
+    <!-- ==================== APPLICATION JAVASCRIPT & FIREBASE INTEGRATION ==================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- 1. BENGALURU-FIRST LAUNCH CONFIG + ALL-INDIA EXPANSION CITIES ---
+        const CITY_CONFIG = {
+            bengaluru: {
+                name: "Bengaluru",
+                isLive: true,
+                coords: [12.9716, 77.5946],
+                zoom: 12,
+                localities: [
+                    { name: "All Bengaluru", coords: [12.9716, 77.5946], zoom: 12 },
+                    { name: "Indiranagar", coords: [12.9784, 77.6408], zoom: 14 },
+                    { name: "Koramangala", coords: [12.9352, 77.6245], zoom: 14 },
+                    { name: "HSR Layout", coords: [12.9121, 77.6446], zoom: 14 },
+                    { name: "Whitefield", coords: [12.9698, 77.7499], zoom: 13 },
+                    { name: "BTM Layout", coords: [12.9166, 77.6101], zoom: 14 },
+                    { name: "Electronic City", coords: [12.8452, 77.6602], zoom: 13 },
+                    { name: "Marathahalli", coords: [12.9591, 77.6974], zoom: 14 },
+                    { name: "Jayanagar", coords: [12.9308, 77.5838], zoom: 14 },
+                    { name: "Hebbal / Manyata", coords: [13.0358, 77.5970], zoom: 14 },
+                    { name: "Bellandur", coords: [12.9304, 77.6784], zoom: 14 }
+                ]
+            },
+            chennai: {
+                name: "Chennai",
+                isLive: false,
+                coords: [13.0418, 80.2341],
+                zoom: 12,
+                localities: [
+                    { name: "All Chennai", coords: [13.0418, 80.2341], zoom: 12 },
+                    { name: "Anna Nagar", coords: [13.0850, 80.2101], zoom: 14 },
+                    { name: "OMR IT Expressway", coords: [12.9165, 80.2295], zoom: 13 }
+                ]
+            },
+            hyderabad: {
+                name: "Hyderabad",
+                isLive: false,
+                coords: [17.4326, 78.3871],
+                zoom: 12,
+                localities: [
+                    { name: "All Hyderabad", coords: [17.4326, 78.3871], zoom: 12 },
+                    { name: "Gachibowli", coords: [17.4401, 78.3489], zoom: 14 },
+                    { name: "HITEC City", coords: [17.4435, 78.3772], zoom: 14 }
+                ]
+            },
+            coimbatore: {
+                name: "Coimbatore",
+                isLive: false,
+                coords: [11.0168, 76.9558],
+                zoom: 12,
+                localities: [
+                    { name: "All Coimbatore", coords: [11.0168, 76.9558], zoom: 12 },
+                    { name: "Saravanampatti", coords: [11.0784, 77.0020], zoom: 14 }
+                ]
+            },
+            madurai: {
+                name: "Madurai",
+                isLive: false,
+                coords: [9.9252, 78.1198],
+                zoom: 13,
+                localities: [
+                    { name: "All Madurai", coords: [9.9252, 78.1198], zoom: 13 },
+                    { name: "Anna Nagar", coords: [9.9230, 78.1480], zoom: 14 },
+                    { name: "KK Nagar", coords: [9.9391, 78.1419], zoom: 14 }
+                ]
+            },
+            mumbai: {
+                name: "Mumbai",
+                isLive: false,
+                coords: [19.0760, 72.8777],
+                zoom: 12,
+                localities: [
+                    { name: "All Mumbai", coords: [19.0760, 72.8777], zoom: 12 },
+                    { name: "Powai", coords: [19.1176, 72.9060], zoom: 14 },
+                    { name: "Andheri West", coords: [19.1364, 72.8296], zoom: 14 }
+                ]
+            }
+        };
+
+        // --- 2. COMPREHENSIVE BENGALURU LAUNCH LISTINGS (RENT & BUY/SALE) ---
+        const INITIAL_PROPERTIES = [
+            // BENGALURU RENTALS
+            {
+                id: "prop-blr-1",
+                mode: "rent",
+                city: "bengaluru",
+                locality: "Indiranagar 100ft Road",
+                title: "Sunlight-Filled 2BHK Corner Flat 300m from Indiranagar Purple Line Metro",
+                category: "Flat / Apartment",
+                bhk: "2 BHK",
+                price: 36000,
+                priceShort: "₹36k/mo",
+                deposit: "₹1.5 Lakh Deposit • Maint. Included",
+                sqft: 1240,
+                furnishing: "Semi-Furnished",
+                water: "24x7 Cauvery + Borewell",
+                parking: "Covered Car + Bike",
+                facing: "East Facing (Vaastu)",
+                noBrokerage: true,
+                bachelorFriendly: true,
+                nearMetro: true,
+                lat: 12.9784,
+                lng: 77.6408,
+                ownerName: "Raghavendra Rao",
+                ownerPhone: "9845011223",
+                rating: "4.9",
+                image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: "prop-blr-2",
+                mode: "rent",
+                city: "bengaluru",
+                locality: "HSR Layout Sector 2",
+                title: "Modern 1BHK Independent House Floor Near 27th Main Startup Hub",
+                category: "Independent House",
+                bhk: "1 BHK",
+                price: 21000,
+                priceShort: "₹21k/mo",
+                deposit: "₹80,000 Deposit • Zero Brokerage",
+                sqft: 750,
+                furnishing: "Fully Furnished",
+                water: "24x7 Cauvery + Borewell",
+                parking: "2-Wheeler Covered",
+                facing: "North Facing",
+                noBrokerage: true,
+                bachelorFriendly: true,
+                nearMetro: false,
+                lat: 12.9121,
+                lng: 77.6446,
+                ownerName: "Sneha Kulkarni",
+                ownerPhone: "9880123456",
+                rating: "4.8",
+                image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: "prop-blr-3",
+                mode: "rent",
+                city: "bengaluru",
+                locality: "Koramangala 4th Block",
+                title: "Luxury Co-Living Studio PG near Sony World Signal (WiFi + Power Backup)",
+                category: "PG / Co-living",
+                bhk: "1 RK / Studio",
+                price: 13500,
+                priceShort: "₹13.5k/mo",
+                deposit: "₹25,000 Deposit • No Lock-in",
+                sqft: 320,
+                furnishing: "Fully Furnished",
+                water: "24x7 Water + DG Backup",
+                parking: "Bike Parking",
+                facing: "East Facing",
+                noBrokerage: true,
+                bachelorFriendly: true,
+                nearMetro: false,
+                lat: 12.9352,
+                lng: 77.6245,
+                ownerName: "Vikram Reddy",
+                ownerPhone: "9900112233",
+                rating: "4.7",
+                image: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: "prop-blr-4",
+                mode: "rent",
+                city: "bengaluru",
+                locality: "BTM Layout 2nd Stage",
+                title: "Main Road Ground Floor Commercial Shop / 25-Seater Startup Office",
+                category: "Commercial Space",
+                bhk: "Commercial Unit",
+                price: 55000,
+                priceShort: "₹55k/mo",
+                deposit: "6 Months Advance • Direct Owner",
+                sqft: 1450,
+                furnishing: "Plug & Play Office",
+                water: "BBMP Cauvery Water",
+                parking: "Front Customer Parking",
+                facing: "Main Road Facing",
+                noBrokerage: true,
+                bachelorFriendly: true,
+                nearMetro: true,
+                lat: 12.9166,
+                lng: 77.6101,
+                ownerName: "Suresh Babu",
+                ownerPhone: "9740098765",
+                rating: "4.9",
+                image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: "prop-blr-7",
+                mode: "rent",
+                city: "bengaluru",
+                locality: "Marathahalli / Outer Ring Road",
+                title: "Spacious 3BHK Society Flat Walking Distance to Cessna & Prestige Tech Park",
+                category: "Flat / Apartment",
+                bhk: "3 BHK",
+                price: 44000,
+                priceShort: "₹44k/mo",
+                deposit: "₹2 Lakh Deposit • Clubhouse Access",
+                sqft: 1620,
+                furnishing: "Semi-Furnished",
+                water: "24x7 Cauvery + Borewell",
+                parking: "2 Covered Car Parks",
+                facing: "East Facing",
+                noBrokerage: true,
+                bachelorFriendly: true,
+                nearMetro: false,
+                lat: 12.9591,
+                lng: 77.6974,
+                ownerName: "Karthik Hegde",
+                ownerPhone: "9845123987",
+                rating: "4.9",
+                image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: "prop-blr-8",
+                mode: "rent",
+                city: "bengaluru",
+                locality: "Jayanagar 4th Block",
+                title: "Tree-Lined 2BHK Independent Heritage-Style House Near Jayanagar Green Line Metro",
+                category: "Independent House",
+                bhk: "2 BHK",
+                price: 28000,
+                priceShort: "₹28k/mo",
+                deposit: "₹1.2 Lakh Deposit • Pure Cauvery Water",
+                sqft: 1180,
+                furnishing: "Semi-Furnished",
+                water: "24x7 Pure Cauvery Water",
+                parking: "Covered Car Porch",
+                facing: "North-East Facing",
+                noBrokerage: true,
+                bachelorFriendly: false,
+                nearMetro: true,
+                lat: 12.9308,
+                lng: 77.5838,
+                ownerName: "Vishwanath Iyer",
+                ownerPhone: "9448011223",
+                rating: "5.0",
+                image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: "prop-blr-9",
+                mode: "rent",
+                city: "bengaluru",
+                locality: "Hebbal / Manyata Tech Park",
+                title: "Executive 2BHK High-Rise Lake View Flat 5 Mins from Manyata Gate 2",
+                category: "Flat / Apartment",
+                bhk: "2 BHK",
+                price: 31000,
+                priceShort: "₹31k/mo",
+                deposit: "₹1.25 Lakh Deposit • Full Power Backup",
+                sqft: 1290,
+                furnishing: "Fully Furnished",
+                water: "24x7 Cauvery + Borewell",
+                parking: "Basement Car Park",
+                facing: "East Facing",
+                noBrokerage: true,
+                bachelorFriendly: true,
+                nearMetro: false,
+                lat: 13.0358,
+                lng: 77.5970,
+                ownerName: "Deepak Shetty",
+                ownerPhone: "9886055443",
+                rating: "4.8",
+                image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=900&q=80"
+            },
+
+            // BENGALURU BUY / SALE SPACES
+            {
+                id: "prop-blr-5",
+                mode: "sale",
+                city: "bengaluru",
+                locality: "Whitefield ITPL Main Road",
+                title: "BBMP A-Khata 3BHK Sky-Villa Flat 400m from Pattandur Agrahara Metro",
+                category: "Flat / Apartment",
+                bhk: "3 BHK",
+                price: 13500000,
+                priceShort: "₹1.35 Cr",
+                deposit: "RERA Approved • SBI/HDFC Pre-Approved",
+                sqft: 1780,
+                furnishing: "Semi-Furnished",
+                water: "24x7 Cauvery + STP",
+                parking: "2 Covered Car Parks",
+                facing: "East Facing (Vaastu)",
+                noBrokerage: true,
+                bachelorFriendly: true,
+                nearMetro: true,
+                lat: 12.9698,
+                lng: 77.7499,
+                ownerName: "Anand Murthy",
+                ownerPhone: "9845566778",
+                rating: "5.0",
+                image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: "prop-blr-6",
+                mode: "sale",
+                city: "bengaluru",
+                locality: "Electronic City Phase 1",
+                title: "BDA / BMRDA A-Khata 30x40 (1200 sq.ft) Corner Plot Near Yellow Line Metro",
+                category: "Plot / Land",
+                bhk: "Residential Plot",
+                price: 7800000,
+                priceShort: "₹78L",
+                deposit: "Clear Title • Direct Owner Sale",
+                sqft: 1200,
+                furnishing: "Ready to Construct",
+                water: "Underground Cauvery + Drainage",
+                parking: "30ft Wide Blacktop Road",
+                facing: "North-East Corner",
+                noBrokerage: true,
+                bachelorFriendly: true,
+                nearMetro: true,
+                lat: 12.8452,
+                lng: 77.6602,
+                ownerName: "Prakash Gowda",
+                ownerPhone: "9980112244",
+                rating: "4.8",
+                image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: "prop-blr-10",
+                mode: "sale",
+                city: "bengaluru",
+                locality: "Bellandur / Sarjapur Road",
+                title: "Ready-to-Move 2BHK Lakefacing Apartment with OC & CC Certificate",
+                category: "Flat / Apartment",
+                bhk: "2 BHK",
+                price: 9200000,
+                priceShort: "₹92L",
+                deposit: "BBMP A-Khata • Zero Brokerage",
+                sqft: 1265,
+                furnishing: "Semi-Furnished",
+                water: "24x7 Cauvery + Borewell",
+                parking: "1 Covered Stilt Car Park",
+                facing: "East Facing",
+                noBrokerage: true,
+                bachelorFriendly: true,
+                nearMetro: false,
+                lat: 12.9304,
+                lng: 77.6784,
+                ownerName: "Naveen Kumar",
+                ownerPhone: "9845099112",
+                rating: "4.9",
+                image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: "prop-blr-11",
+                mode: "sale",
+                city: "bengaluru",
+                locality: "HSR Layout Sector 1",
+                title: "Independent 4BHK Duplex Villa on 40x60 BDA Plot with Private Terrace",
+                category: "Independent House",
+                bhk: "3 BHK",
+                price: 34000000,
+                priceShort: "₹3.40 Cr",
+                deposit: "BDA A-Khata • Clear Documents",
+                sqft: 3200,
+                furnishing: "Fully Furnished",
+                water: "24x7 Cauvery + Solar Heater",
+                parking: "3 Covered Car Parks",
+                facing: "North Facing",
+                noBrokerage: true,
+                bachelorFriendly: true,
+                nearMetro: true,
+                lat: 12.9185,
+                lng: 77.6510,
+                ownerName: "Dr. Chandrashekar",
+                ownerPhone: "9845077889",
+                rating: "5.0",
+                image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80"
+            },
+
+            // PHASE 2 EXPANSION PREVIEW LISTINGS (CHENNAI, MADURAI, COIMBATORE, HYDERABAD, MUMBAI)
+            {
+                id: "prop-mdu-1",
+                mode: "rent",
+                city: "madurai",
+                locality: "Anna Nagar Main Road, Madurai",
+                title: "Spacious 2BHK Independent Ground Floor Portion near Apollo Hospital",
+                category: "Independent House",
+                bhk: "2 BHK",
+                price: 14500,
+                priceShort: "₹14.5k/mo",
+                deposit: "₹60,000 Advance",
+                sqft: 1100,
+                furnishing: "Semi-Furnished",
+                water: "Vaigai Corporation + Sweet Borewell",
+                parking: "Car Porch + 2 Bikes",
+                facing: "East Facing",
+                noBrokerage: true,
+                bachelorFriendly: true,
+                nearMetro: false,
+                lat: 9.9230,
+                lng: 78.1480,
+                ownerName: "Meenakshi Sundaram",
+                ownerPhone: "9842155667",
+                rating: "4.9",
+                image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: "prop-che-1",
+                mode: "rent",
+                city: "chennai",
+                locality: "Anna Nagar West, Chennai",
+                title: "Breezy 3BHK Flat 300m from Thirumangalam Metro Station",
+                category: "Flat / Apartment",
+                bhk: "3 BHK",
+                price: 38000,
+                priceShort: "₹38k/mo",
+                deposit: "₹2 Lakh Advance",
+                sqft: 1550,
+                furnishing: "Semi-Furnished",
+                water: "Metro Water + Borewell",
+                parking: "Covered Stilt Car Park",
+                facing: "South-East Breeze",
+                noBrokerage: true,
+                bachelorFriendly: false,
+                nearMetro: true,
+                lat: 13.0850,
+                lng: 80.2101,
+                ownerName: "Balaji Natarajan",
+                ownerPhone: "9840099887",
+                rating: "4.9",
+                image: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: "prop-cbe-1",
+                mode: "rent",
+                city: "coimbatore",
+                locality: "Saravanampatti IT Hub, Coimbatore",
+                title: "Fully Furnished 2BHK Tech Park View Flat with Power Backup",
+                category: "Flat / Apartment",
+                bhk: "2 BHK",
+                price: 18500,
+                priceShort: "₹18.5k/mo",
+                deposit: "₹75,000 Advance",
+                sqft: 1120,
+                furnishing: "Fully Furnished",
+                water: "Siruvani Water + Borewell",
+                parking: "Covered Car Park",
+                facing: "East Facing",
+                noBrokerage: true,
+                bachelorFriendly: true,
+                nearMetro: false,
+                lat: 11.0784,
+                lng: 77.0020,
+                ownerName: "Prabhu Ramasamy",
+                ownerPhone: "9894012345",
+                rating: "4.9",
+                image: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=900&q=80"
+            },
+            {
+                id: "prop-hyd-1",
+                mode: "rent",
+                city: "hyderabad",
+                locality: "Gachibowli Financial District, Hyderabad",
+                title: "High-Rise 2.5 BHK Executive Apartment near Wipro Circle",
+                category: "Flat / Apartment",
+                bhk: "2 BHK",
+                price: 34000,
+                priceShort: "₹34k/mo",
+                deposit: "2 Months Rent Deposit",
+                sqft: 1420,
+                furnishing: "Fully Furnished",
+                water: "Manjeera + Borewell",
+                parking: "2 Basement Car Parks",
+                facing: "West Facing",
+                noBrokerage: true,
+                bachelorFriendly: true,
+                nearMetro: true,
+                lat: 17.4401,
+                lng: 78.3489,
+                ownerName: "Srinivas Rao",
+                ownerPhone: "9000112233",
+                rating: "4.9",
+                image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=900&q=80"
+            }
+        ];
+
+        // --- 3. STATE VARIABLES ---
+        let allProperties = [...INITIAL_PROPERTIES];
+        let currentMode = "rent"; // 'rent' | 'sale'
+        let currentCity = "bengaluru";
+        let currentCategory = "all";
+        let tagFilters = {
+            noBrokerage: false,
+            bachelorFriendly: false,
+            nearMetro: false,
+            savedOnly: false
+        };
+        let savedPropertyIds = new Set(["prop-blr-1"]);
+        let map = null;
+        let currentTileLayer = null;
+        let isSatelliteView = false;
+        let searchOnMapMove = true;
+        let isProgrammaticMove = false;
+        let markersLayer = null;
+        let markerMapById = {};
+        let isFullMapDesktop = false;
+        let isMobileMapOpen = false;
+        let showAdSenseSlots = true;
+
+        // Post Property Mini-Map Picker State
+        let postMiniMap = null;
+        let postMiniMarker = null;
+
+        // Auth State (Supports Firebase + Interactive Indian Mobile OTP & Google ID)
+        let currentUserProfile = null;
+        let generatedOtpCode = "482910";
+        let pendingPostAfterAuth = false;
+
+        // Firebase References
+        let db = null;
+        let auth = null;
+        let firebaseUser = null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : '2walls-india-app';
+
+        // --- 4. INITIALIZE FIREBASE (IF CONFIGURED IN ENVIRONMENT) ---
+        // --- 5. LEAFLET INTERACTIVE MAP & SATELLITE / STREET LAYER SWITCHER ---
+        function initMap() {
+            const city = CITY_CONFIG[currentCity];
+            map = L.map('map', {
+                zoomControl: false
+            }).setView(city.coords, city.zoom);
+
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+            setMapTiles(false);
+
+            markersLayer = L.layerGroup().addTo(map);
+
+            // Filter properties when user drags or zooms the map if "Search as I move map" is checked
+            map.on('moveend', () => {
+                if (isProgrammaticMove) {
+                    isProgrammaticMove = false;
+                    return;
+                }
+                if (searchOnMapMove) {
+                    applyFilters(true);
+                }
+            });
+        }
+
+        function setMapTiles(satellite) {
+            if (!map) return;
+            if (currentTileLayer) {
+                map.removeLayer(currentTileLayer);
+            }
+            if (satellite) {
+                currentTileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics',
+                    maxZoom: 19
+                }).addTo(map);
+            } else {
+                currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                }).addTo(map);
+            }
+        }
+
+        window.toggleMapTileStyle = function() {
+            isSatelliteView = !isSatelliteView;
+            setMapTiles(isSatelliteView);
+            document.getElementById('mapLayerText').textContent = isSatelliteView ? 'Street Map' : 'Satellite';
+            showToast(isSatelliteView ? "Switched to Satellite View" : "Switched to Street View");
+        };
+
+        window.toggleSearchOnMove = function(enabled) {
+            searchOnMapMove = enabled;
+            applyFilters(false);
+        };
+
+        // --- 6. FORMAT INR CURRENCY & GOOGLE MAPS NAVIGATION URL ---
+        function formatINRShort(amount, mode) {
+            const num = Number(amount);
+            if (mode === 'rent') {
+                if (num >= 100000) return `₹${(num / 100000).toFixed(1)}L/mo`;
+                if (num >= 1000) return `₹${(num / 1000).toFixed(num % 1000 === 0 ? 0 : 1)}k/mo`;
+                return `₹${num}/mo`;
+            } else {
+                if (num >= 10000000) return `₹${(num / 10000000).toFixed(2)} Cr`;
+                if (num >= 100000) return `₹${(num / 100000).toFixed(0)}L`;
+                return `₹${num.toLocaleString('en-IN')}`;
+            }
+        }
+
+        function getGoogleMapsDirectionsUrl(lat, lng) {
+            return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+        }
+
+        // --- 7. RENDER NEIGHBORHOOD CHIPS, PROPERTIES & NATIVE IN-FEED GOOGLE ADSENSE ---
+        function renderLocalityBar() {
+            const container = document.getElementById('localityQuickBar');
+            const localities = CITY_CONFIG[currentCity]?.localities || [];
+            container.innerHTML = localities.map((loc, idx) => `
+                <button onclick="flyToLocality(${loc.coords[0]}, ${loc.coords[1]}, ${loc.zoom}, '${loc.name}')"
+                    class="px-3 py-1 rounded-full text-xs font-semibold border transition shrink-0 ${idx === 0 ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400'}">
+                    ${loc.name}
+                </button>
+            `).join('');
+        }
+
+        window.flyToLocality = function(lat, lng, zoom, name) {
+            if (map) {
+                isProgrammaticMove = true;
+                map.flyTo([lat, lng], zoom, { duration: 1.0 });
+                setTimeout(() => {
+                    isProgrammaticMove = false;
+                    applyFilters(false);
+                }, 1100);
+            }
+            document.getElementById('mapOverlayTitle').textContent = `${name}`;
+        };
+
+        window.applyFilters = function(useMapBoundsOnly = false) {
+            const queryText = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+            const mapBounds = (map && searchOnMapMove && useMapBoundsOnly) ? map.getBounds() : null;
+
+            const filtered = allProperties.filter(item => {
+                if (item.city !== currentCity) return false;
+                if (item.mode !== currentMode) return false;
+                if (currentCategory !== 'all' && item.category !== currentCategory) return false;
+                if (tagFilters.noBrokerage && !item.noBrokerage) return false;
+                if (tagFilters.bachelorFriendly && !item.bachelorFriendly) return false;
+                if (tagFilters.nearMetro && !item.nearMetro) return false;
+                if (tagFilters.savedOnly && !savedPropertyIds.has(item.id)) return false;
+
+                if (mapBounds) {
+                    if (!mapBounds.contains([item.lat, item.lng])) return false;
+                }
+
+                if (queryText) {
+                    const haystack = `${item.title} ${item.locality} ${item.category} ${item.bhk}`.toLowerCase();
+                    if (!haystack.includes(queryText)) return false;
+                }
+                return true;
+            });
+
+            renderPropertyCards(filtered);
+            renderMapMarkers(filtered);
+            document.getElementById('resultsCount').textContent = filtered.length;
+            document.getElementById('savedCountBadge').textContent = savedPropertyIds.size;
+        };
+
+        // Contextual Native In-Feed AdSense Campaigns for Bengaluru
+        const NATIVE_ADSENSE_CAMPAIGNS = [
+            {
+                badge: "Sponsored • Google AdSense In-Feed",
+                brand: "Porter & Agarwal Packers Bengaluru",
+                title: "Shifting in Indiranagar, HSR or Whitefield? Flat 20% OFF House Shifting!",
+                desc: "Verified Bengaluru crew, multi-layer bubble wrap, and same-day doorstep move. Instant quote in 30 seconds.",
+                cta: "Get Free Moving Quote",
+                icon: "fa-truck-fast",
+                accent: "from-amber-500 to-orange-600"
+            },
+            {
+                badge: "Sponsored • Google AdSense In-Feed",
+                brand: "Livspace & HomeLane Bengaluru Experience Center",
+                title: "Modular Kitchen & Full 2BHK/3BHK Interiors in Bengaluru Starting ₹3.4L*",
+                desc: "45-Day Move-in Guarantee. Visit our Indiranagar, HSR Layout, or Whitefield Experience Center today.",
+                cta: "Book Free 3D Design",
+                icon: "fa-couch",
+                accent: "from-indigo-600 to-violet-600"
+            }
+        ];
+
+        function buildNativeAdSenseCardHTML(adIndex) {
+            if (!showAdSenseSlots) return '';
+            const ad = NATIVE_ADSENSE_CAMPAIGNS[adIndex % NATIVE_ADSENSE_CAMPAIGNS.length];
+            return `
+                <aside class="bg-gradient-to-br from-amber-50/70 via-white to-slate-50 rounded-2xl border-2 border-dashed border-amber-300/90 p-4 flex flex-col justify-between shadow-sm">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2.5">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300">
+                                ${ad.badge}
+                            </span>
+                            <span class="text-[10px] font-semibold text-slate-400">Ad • ca-pub-XXXX</span>
+                        </div>
+
+                        <!-- Official Google AdSense In-Feed <ins> Structure -->
+                        <ins class="adsbygoogle block"
+                             style="display:block"
+                             data-ad-format="fluid"
+                             data-ad-layout-key="-fb+5w+4e-db+86"
+                             data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                             data-ad-slot="1122334455"></ins>
+
+                        <div class="flex items-start gap-3 mt-1">
+                            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr ${ad.accent} text-white flex items-center justify-center text-lg shrink-0 shadow-md">
+                                <i class="fa-solid ${ad.icon}"></i>
+                            </div>
+                            <div>
+                                <div class="text-[11px] font-bold text-slate-500 uppercase">${ad.brand}</div>
+                                <h4 class="font-extrabold text-sm text-slate-900 mt-0.5 leading-snug">${ad.title}</h4>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-600 mt-3 leading-relaxed">${ad.desc}</p>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-amber-200/60 flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-emerald-700"><i class="fa-solid fa-shield-halved mr-1"></i>Bengaluru Partner</span>
+                        <button onclick="showToast('Google AdSense In-Feed Ad Clicked! High CPC Real Estate Category')" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-brand-600 text-white text-xs font-extrabold transition flex items-center gap-1.5">
+                            <span>${ad.cta}</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </button>
+                    </div>
+                </aside>
+            `;
+        }
+
+        function renderPropertyCards(list) {
+            const grid = document.getElementById('propertiesGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            if (list.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            let htmlChunks = [];
+            let adCounter = 0;
+
+            list.forEach((prop, idx) => {
+                const isSaved = savedPropertyIds.has(prop.id);
+                const modeBadgeClass = prop.mode === 'rent'
+                    ? 'bg-brand-600 text-white'
+                    : 'bg-indigo-600 text-white';
+                const gmapsUrl = getGoogleMapsDirectionsUrl(prop.lat, prop.lng);
+
+                htmlChunks.push(`
+                <article 
+                    onmouseenter="highlightMapMarker('${prop.id}', true)"
+                    onmouseleave="highlightMapMarker('${prop.id}', false)"
+                    class="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group cursor-pointer"
+                    onclick="openPropertyDetail('${prop.id}')">
+                    
+                    <!-- Image Container -->
+                    <div class="relative h-48 w-full overflow-hidden bg-slate-200">
+                        <img src="${prop.image}" alt="${prop.title}" 
+                             onerror="this.src='https://placehold.co/600x400/e2e8f0/475569?text=2Walls+Bengaluru+Space'"
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        
+                        <!-- Top Badges -->
+                        <div class="absolute top-3 left-3 flex items-center gap-1.5">
+                            <span class="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wide shadow ${modeBadgeClass}">
+                                ${prop.mode === 'rent' ? 'For Rent' : 'For Sale'}
+                            </span>
+                            ${prop.noBrokerage ? `
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-600 text-white shadow flex items-center gap-1">
+                                    <i class="fa-solid fa-check-circle"></i> Zero Brokerage
+                                </span>
+                            ` : ''}
+                        </div>
+
+                        <!-- Wishlist Heart Button -->
+                        <button onclick="toggleSaveProperty(event, '${prop.id}')" 
+                            class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-md transition">
+                            <i class="${isSaved ? 'fa-solid text-rose-600' : 'fa-regular text-slate-700'} fa-heart text-sm"></i>
+                        </button>
+
+                        <!-- Bottom Image Overlay Info -->
+                        <div class="absolute bottom-2.5 left-3 right-3 flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-lg bg-slate-900/80 backdrop-blur-sm text-white text-[11px] font-bold">
+                                <i class="fa-solid fa-location-dot text-amber-400 mr-1"></i>${prop.locality}
+                            </span>
+                            <span class="px-2 py-0.5 rounded-lg bg-white/95 text-slate-900 text-[11px] font-extrabold shadow">
+                                ★ ${prop.rating || '4.8'}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                                <span>${prop.category} • ${prop.bhk}</span>
+                                <span>${prop.sqft} sq.ft</span>
+                            </div>
+                            <h3 class="font-bold text-sm text-slate-900 mt-1 line-clamp-2 group-hover:text-brand-600 transition">
+                                ${prop.title}
+                            </h3>
+
+                            <!-- Indian Specific Amenity Pills -->
+                            <div class="flex flex-wrap gap-1.5 mt-2.5">
+                                <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[11px] font-medium">
+                                    <i class="fa-solid fa-couch mr-1 text-slate-400"></i>${prop.furnishing}
+                                </span>
+                                <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[11px] font-medium">
+                                    <i class="fa-solid fa-droplet mr-1 text-sky-500"></i>${prop.water}
+                                </span>
+                                ${prop.nearMetro ? `
+                                    <span class="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 text-[11px] font-semibold">
+                                        <i class="fa-solid fa-train-subway mr-1"></i>Namma Metro Nearby
+                                    </span>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Price, Google Maps Direction Link & Direct Owner Connect Footer -->
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <div>
+                                <div class="text-base font-extrabold text-slate-900">
+                                    ${prop.priceShort}
+                                </div>
+                                <div class="text-[11px] text-slate-500 font-medium line-clamp-1">
+                                    ${prop.deposit}
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <button onclick="locatePropertyOnMap(event, '${prop.id}')" 
+                                    class="px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition" title="Highlight Pin on 2Walls Map">
+                                    <i class="fa-solid fa-map-pin text-brand-600"></i>
+                                </button>
+                                <a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"
+                                    class="px-2.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold transition" title="Open Turn-by-Turn Directions on Google Maps">
+                                    <i class="fa-solid fa-diamond-turn-right"></i>
+                                </a>
+                                <button onclick="handleContactOwner(event, '${prop.id}')" 
+                                    class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-brand-600 text-white text-xs font-bold transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-phone-volume text-[11px]"></i>
+                                    <span>Owner</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                `);
+
+                // Inject Native In-Feed AdSense Slot after every 3rd property card
+                if ((idx + 1) % 3 === 0) {
+                    htmlChunks.push(buildNativeAdSenseCardHTML(adCounter++));
+                }
+            });
+
+            grid.innerHTML = htmlChunks.join('');
+        }
+
+        function renderMapMarkers(list) {
+            if (!markersLayer) return;
+            markersLayer.clearLayers();
+            markerMapById = {};
+
+            list.forEach(prop => {
+                const pillClass = prop.mode === 'rent' ? 'rent-pill' : 'sale-pill';
+                const gmapsUrl = getGoogleMapsDirectionsUrl(prop.lat, prop.lng);
+                const icon = L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `<div id="marker-pill-${prop.id}" class="price-marker-pill ${pillClass}">
+                              <span>${prop.priceShort}</span>
+                           </div>`,
+                    iconSize: [84, 32],
+                    iconAnchor: [42, 16]
+                });
+
+                const marker = L.marker([prop.lat, prop.lng], { icon });
+
+                const popupHtml = `
+                    <div>
+                        <div class="relative h-32 w-full bg-slate-200 cursor-pointer" onclick="openPropertyDetail('${prop.id}')">
+                            <img src="${prop.image}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x250/e2e8f0/475569?text=2Walls'">
+                            <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900/85 text-white">
+                                ${prop.bhk} • ${prop.sqft} sq.ft
+                            </span>
+                        </div>
+                        <div class="p-3">
+                            <div class="text-[11px] font-bold text-brand-600 uppercase">${prop.locality}</div>
+                            <h4 class="font-bold text-xs text-slate-900 line-clamp-1 mt-0.5 cursor-pointer" onclick="openPropertyDetail('${prop.id}')">${prop.title}</h4>
+                            <div class="mt-2.5 flex items-center justify-between gap-2">
+                                <div>
+                                    <span class="font-extrabold text-sm text-slate-900">${prop.priceShort}</span>
+                                    <span class="block text-[10px] text-slate-500">${prop.deposit}</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer" class="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold" title="Google Maps Directions">
+                                        <i class="fa-solid fa-diamond-turn-right"></i>
+                                    </a>
+                                    <button onclick="openPropertyDetail('${prop.id}')" class="px-2.5 py-1 rounded-lg bg-brand-600 text-white text-[11px] font-bold">
+                                        Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                marker.bindPopup(popupHtml, { closeButton: false, offset: [0, -6] });
+                markersLayer.addLayer(marker);
+                markerMapById[prop.id] = marker;
+            });
+        }
+
+        window.highlightMapMarker = function(propId, active) {
+            const pillEl = document.getElementById(`marker-pill-${propId}`);
+            if (pillEl) {
+                if (active) pillEl.classList.add('active-marker');
+                else pillEl.classList.remove('active-marker');
+            }
+        };
+
+        window.locatePropertyOnMap = function(event, propId) {
+            event.stopPropagation();
+            const prop = allProperties.find(p => p.id === propId);
+            if (!prop || !map) return;
+
+            if (window.innerWidth < 1024 && !isMobileMapOpen) {
+                toggleMobileView();
+            }
+
+            map.flyTo([prop.lat, prop.lng], 16, { duration: 1.0 });
+            const marker = markerMapById[propId];
+            if (marker) {
+                setTimeout(() => marker.openPopup(), 600);
+            }
+        };
+
+        // --- 8. FILTER & MODE ACTIONS ---
+        window.setListingMode = function(mode) {
+            currentMode = mode;
+            const rentBtn = document.getElementById('modeRentBtn');
+            const saleBtn = document.getElementById('modeSaleBtn');
+
+            if (mode === 'rent') {
+                rentBtn.className = "flex items-center gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all bg-brand-600 text-white shadow-sm";
+                saleBtn.className = "flex items-center gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900";
+            } else {
+                saleBtn.className = "flex items-center gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all bg-indigo-600 text-white shadow-sm";
+                rentBtn.className = "flex items-center gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900";
+            }
+            applyFilters();
+        };
+
+        window.handleCityChange = function(cityKey) {
+            currentCity = cityKey;
+            document.getElementById('citySelect').value = cityKey;
+            document.getElementById('mobileCitySelect').value = cityKey;
+
+            const city = CITY_CONFIG[cityKey];
+            const banner = document.getElementById('expansionWaitlistBanner');
+
+            if (city && !city.isLive) {
+                banner.classList.remove('hidden');
+                document.getElementById('expansionCityName').textContent = city.name;
+            } else {
+                banner.classList.add('hidden');
+            }
+
+            if (map && city) {
+                isProgrammaticMove = true;
+                map.flyTo(city.coords, city.zoom, { duration: 1.2 });
+                document.getElementById('mapOverlayTitle').textContent = `${city.name} Map`;
+                setTimeout(() => {
+                    isProgrammaticMove = false;
+                }, 1300);
+            }
+            renderLocalityBar();
+            applyFilters(false);
+        };
+
+        window.joinCityWaitlist = function() {
+            const city = CITY_CONFIG[currentCity]?.name || "this city";
+            showToast(`You're on the priority launch list for 2Walls ${city}!`);
+        };
+
+        window.toggleAdSensePreview = function() {
+            showAdSenseSlots = !showAdSenseSlots;
+            const btnText = document.getElementById('adSenseToggleText');
+            const footerAd = document.getElementById('footerAdSenseContainer');
+
+            btnText.textContent = showAdSenseSlots ? "AdSense Slots: ON" : "AdSense Slots: OFF";
+            if (footerAd) {
+                footerAd.classList.toggle('hidden', !showAdSenseSlots);
+            }
+            applyFilters(false);
+            showToast(showAdSenseSlots ? "Google AdSense Placement Preview Enabled" : "Google AdSense Placement Preview Hidden");
+        };
+
+        window.setCategoryFilter = function(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.className = "cat-btn active px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 bg-slate-900 text-white transition";
+                } else {
+                    btn.className = "cat-btn px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+                }
+            });
+            applyFilters();
+        };
+
+        window.toggleTagFilter = function(key) {
+            tagFilters[key] = !tagFilters[key];
+            const btnMap = {
+                noBrokerage: 'filterZeroBrokerage',
+                bachelorFriendly: 'filterBachelor',
+                nearMetro: 'filterMetro',
+                savedOnly: 'filterSavedOnly'
+            };
+            const el = document.getElementById(btnMap[key]);
+            if (el) {
+                if (tagFilters[key]) {
+                    el.classList.add('ring-2', 'ring-slate-900', 'bg-slate-900', 'text-white');
+                } else {
+                    el.classList.remove('ring-2', 'ring-slate-900', 'bg-slate-900', 'text-white');
+                }
+            }
+            applyFilters();
+        };
+
+        window.resetAllFilters = function() {
+            currentCategory = 'all';
+            tagFilters = { noBrokerage: false, bachelorFriendly: false, nearMetro: false, savedOnly: false };
+            document.getElementById('searchInput').value = '';
+            document.getElementById('mobileSearchInput').value = '';
+            setCategoryFilter('all');
+        };
+
+        window.resetFiltersAndFlyHome = function() {
+            resetAllFilters();
+            handleCityChange('bengaluru');
+        };
+
+        window.syncMobileSearch = function(val) {
+            document.getElementById('searchInput').value = val;
+            applyFilters();
+        };
+
+        window.toggleSaveProperty = function(event, propId) {
+            event.stopPropagation();
+            if (savedPropertyIds.has(propId)) {
+                savedPropertyIds.delete(propId);
+                showToast("Removed from saved spaces");
+            } else {
+                savedPropertyIds.add(propId);
+                showToast("Saved to your shortlist!");
+            }
+            applyFilters();
+        };
+
+        // --- 9. AUTHENTICATION FLOW (INDIAN MOBILE OTP + GOOGLE MAIL ID) ---
+        window.openAuthModal = function() {
+            document.getElementById('authModal').classList.remove('hidden');
+        };
+
+        window.closeAuthModal = function() {
+            document.getElementById('authModal').classList.add('hidden');
+        };
+
+        window.switchAuthTab = function(tab) {
+            const mobileBtn = document.getElementById('tabMobileAuth');
+            const googleBtn = document.getElementById('tabGoogleAuth');
+            const mobileSec = document.getElementById('mobileAuthSection');
+            const googleSec = document.getElementById('googleAuthSection');
+
+            if (tab === 'mobile') {
+                mobileBtn.className = "py-2 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-sm transition";
+                googleBtn.className = "py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition";
+                mobileSec.classList.remove('hidden');
+                googleSec.classList.add('hidden');
+            } else {
+                googleBtn.className = "py-2 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-sm transition";
+                mobileBtn.className = "py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition";
+                googleSec.classList.remove('hidden');
+                mobileSec.classList.add('hidden');
+            }
+        };
+
+        window.sendMobileOTP = function() {
+            const phone = document.getElementById('indianMobileInput').value.trim();
+            const validIndianMobile = /^[6-9]\d{9}$/.test(phone);
+            if (!validIndianMobile) {
+                showToast("Please enter a valid 10-digit Indian mobile number starting with 6-9");
+                return;
+            }
+
+            generatedOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+            document.getElementById('displaySentMobile').textContent = phone;
+            document.getElementById('demoOtpDisplay').textContent = generatedOtpCode;
+            document.getElementById('otpCodeInput').value = generatedOtpCode;
+
+            document.getElementById('otpStep1').classList.add('hidden');
+            document.getElementById('otpStep2').classList.remove('hidden');
+            showToast(`OTP ${generatedOtpCode} sent to +91 ${phone}`);
+        };
+
+        window.resetOtpFlow = function() {
+            document.getElementById('otpStep2').classList.add('hidden');
+            document.getElementById('otpStep1').classList.remove('hidden');
+        };
+
+        window.verifyMobileOTP = function() {
+            const enteredOtp = document.getElementById('otpCodeInput').value.trim();
+            const phone = document.getElementById('indianMobileInput').value.trim();
+            const customName = document.getElementById('mobileUserNameInput').value.trim();
+
+            if (enteredOtp.length !== 6) {
+                showToast("Please enter the 6-digit OTP code");
+                return;
+            }
+
+            currentUserProfile = {
+                name: customName || `User +91-${phone.slice(-4)}`,
+                contact: `+91 ${phone}`,
+                method: 'mobile',
+                rawPhone: phone
+            };
+
+            completeLoginSuccess();
+        };
+
+        window.signInWithGoogleAccount = async function() {
+            if (auth) {
+                try {
+                    const provider = new GoogleAuthProvider();
+                    const result = await signInWithPopup(auth, provider);
+                    if (result.user) {
+                        currentUserProfile = {
+                            name: result.user.displayName || "Google User",
+                            contact: result.user.email,
+                            method: 'google'
+                        };
+                        completeLoginSuccess();
+                        return;
+                    }
+                } catch (e) {
+                    // Fallback to direct Gmail input if popup is blocked inside preview iframe
+                    showToast("Popup restricted in preview frame — enter your Gmail below to login immediately!");
+                }
+            } else {
+                showToast("Enter your Gmail ID below for instant verification");
+            }
+        };
+
+        window.signInWithDirectGmail = function() {
+            const email = document.getElementById('directGmailInput').value.trim();
+            const name = document.getElementById('directGmailName').value.trim();
+
+            if (!email || !email.includes('@')) {
+                showToast("Please enter a valid Google Mail ID");
+                return;
+            }
+
+            currentUserProfile = {
+                name: name || email.split('@')[0],
+                contact: email,
+                method: 'google'
+            };
+
+            completeLoginSuccess();
+        };
+
+        function completeLoginSuccess() {
+            updateAuthHeaderUI();
+            closeAuthModal();
+            showToast(`Logged in as ${currentUserProfile.name}`);
+
+            if (pendingPostAfterAuth) {
+                pendingPostAfterAuth = false;
+                openPostPropertyModal();
+            }
+        }
+
+        window.logoutUser = function() {
+            currentUserProfile = null;
+            updateAuthHeaderUI();
+            showToast("Logged out successfully");
+        };
+
+        function updateAuthHeaderUI() {
+            const container = document.getElementById('authHeaderContainer');
+            if (!currentUserProfile) {
+                container.innerHTML = `
+                    <button onclick="openAuthModal()" class="flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-300 rounded-full py-1.5 px-3 shadow-sm transition">
+        // --- 10. PROPERTY DETAIL MODAL, GOOGLE MAPS DEEP LINK & CONTEXTUAL ADSENSE SLOT ---
+        window.openPropertyDetail = function(propId) {
+            const prop = allProperties.find(p => p.id === propId);
+            if (!prop) return;
+
+            const isUnlocked = Boolean(currentUserProfile);
+            const maskedPhone = `+91 ${prop.ownerPhone.slice(0, 2)}•••••${prop.ownerPhone.slice(-3)}`;
+            const whatsappMsg = encodeURIComponent(`Hi ${prop.ownerName}, I saw your property "${prop.title}" in ${prop.locality} listed on 2Walls Bengaluru (${prop.priceShort}). Is it available for a visit?`);
+            const gmapsUrl = getGoogleMapsDirectionsUrl(prop.lat, prop.lng);
+
+            const container = document.getElementById('propertyDetailContent');
+            container.innerHTML = `
+                <div class="relative h-64 sm:h-80 w-full bg-slate-200">
+                    <img src="${prop.image}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/900x500/e2e8f0/475569?text=2Walls+Verified+Space'">
+                    <button onclick="closePropertyDetailModal()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-slate-900/80 hover:bg-slate-900 text-white flex items-center justify-center text-lg shadow-lg">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <div class="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-1 rounded-full text-xs font-extrabold uppercase bg-brand-600 text-white shadow">
+                                ${prop.mode === 'rent' ? 'Rent Space' : 'Buy / Sale Space'}
+                            </span>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-600 text-white shadow">
+                                <i class="fa-solid fa-shield-check mr-1"></i> Direct Owner Listing
+                            </span>
+                        </div>
+                        <a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-white text-slate-900 hover:bg-slate-100 shadow-lg flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-diamond-turn-right text-emerald-600"></i> Navigate on Google Maps
+                        </a>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+                        <div>
+                            <div class="text-xs font-bold text-brand-600 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-location-dot"></i> ${prop.locality}, ${CITY_CONFIG[prop.city]?.name || prop.city}
+                            </div>
+                            <h2 class="text-xl font-extrabold text-slate-900 mt-1">${prop.title}</h2>
+                        </div>
+                        <div class="sm:text-right shrink-0 bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-200">
+                            <div class="text-2xl font-extrabold text-slate-900">${prop.priceShort}</div>
+                            <div class="text-xs font-semibold text-slate-500">${prop.deposit}</div>
+                        </div>
+                    </div>
+
+                    <!-- Indian Real Estate Specs Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 my-5">
+                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                            <div class="text-[11px] text-slate-400 font-semibold">Configuration</div>
+                            <div class="text-sm font-extrabold text-slate-800 mt-0.5"><i class="fa-solid fa-door-open text-brand-600 mr-1.5"></i>${prop.bhk}</div>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                            <div class="text-[11px] text-slate-400 font-semibold">Super Built-up Area</div>
+                            <div class="text-sm font-extrabold text-slate-800 mt-0.5"><i class="fa-solid fa-ruler-combined text-indigo-600 mr-1.5"></i>${prop.sqft} sq.ft</div>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                            <div class="text-[11px] text-slate-400 font-semibold">Furnishing</div>
+                            <div class="text-sm font-extrabold text-slate-800 mt-0.5"><i class="fa-solid fa-couch text-amber-600 mr-1.5"></i>${prop.furnishing}</div>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                            <div class="text-[11px] text-slate-400 font-semibold">Water Supply</div>
+                            <div class="text-sm font-extrabold text-slate-800 mt-0.5"><i class="fa-solid fa-droplet text-sky-600 mr-1.5"></i>${prop.water}</div>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                            <div class="text-[11px] text-slate-400 font-semibold">Parking</div>
+                            <div class="text-sm font-extrabold text-slate-800 mt-0.5"><i class="fa-solid fa-car text-emerald-600 mr-1.5"></i>${prop.parking || 'Covered Parking'}</div>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                            <div class="text-[11px] text-slate-400 font-semibold">Direction / Vaastu</div>
+                            <div class="text-sm font-extrabold text-slate-800 mt-0.5"><i class="fa-solid fa-compass text-rose-600 mr-1.5"></i>${prop.facing || 'East Facing'}</div>
+                        </div>
+                    </div>
+
+                    <!-- Owner Connect Box -->
+                    <div class="p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-amber-400 text-xl font-bold">
+                                <i class="fa-solid fa-user-check"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-300 font-medium">Listed Directly by Verified Owner</div>
+                                <div class="text-base font-extrabold">${prop.ownerName}</div>
+                                <div class="text-xs text-emerald-400 font-bold mt-0.5">
+                                    <i class="fa-solid fa-phone mr-1"></i>
+                                    ${isUnlocked ? `+91 ${prop.ownerPhone}` : maskedPhone}
+                                </div>
+                            </div>
+                        </div>
+
+                        ${isUnlocked ? `
+                            <div class="flex items-center gap-2.5 w-full sm:w-auto">
+                                <a href="tel:+91${prop.ownerPhone}" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-white text-slate-900 font-extrabold text-xs flex items-center justify-center gap-1.5 hover:bg-slate-100 transition">
+                                    <i class="fa-solid fa-phone text-brand-600"></i> Call Owner
+                                </a>
+                                <a href="https://wa.me/91${prop.ownerPhone}?text=${whatsappMsg}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                                </a>
+                            </div>
+                        ` : `
+                            <button onclick="closePropertyDetailModal(); openAuthModal();" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-extrabold text-xs shadow-lg transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-lock-open"></i> Verify Mobile / Gmail to View Phone
+                            </button>
+                        `}
+                    </div>
+
+                    <!-- SLOT 2: HIGH-CPC CONTEXTUAL GOOGLE ADSENSE BANNER INSIDE MODAL -->
+                    ${showAdSenseSlots ? `
+                    <div class="mt-5 p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div>
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">
+                                Sponsored • Google AdSense Contextual Slot
+                            </span>
+                            <div class="text-xs font-extrabold text-slate-900 mt-1">
+                                ${prop.mode === 'rent' 
+                                    ? 'Need Zero-Deposit Rental Bond or Packers & Movers in ' + prop.locality + '?' 
+                                    : 'Calculate EMI for ' + prop.priceShort + ' Property — Instant Bengaluru Home Loan @ 8.35%'}
+                            </div>
+                            <p class="text-[11px] text-slate-600">Compare verified quotes from NoBroker Hood Partners, Porter & HDFC Home Loans.</p>
+                        </div>
+                        <button onclick="showToast('Contextual Modal AdSense Slot Clicked!')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs shrink-0 transition">
+                            ${prop.mode === 'rent' ? 'Book Mover @ 20% Off' : 'Check Loan EMI'}
+                        </button>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('propertyDetailModal').classList.remove('hidden');
+        };
+        // --- 11. POST YOUR SPACE MODAL & INTERACTIVE MINI-MAP PIN PICKER ---
+        window.handlePostSpaceClick = function() {
+            if (!currentUserProfile) {
+                pendingPostAfterAuth = true;
+                showToast("Please verify your Mobile OTP or Google ID to post a space");
+                openAuthModal();
+                return;
+            }
+            openPostPropertyModal();
+        };
+
+        window.openPostPropertyModal = function() {
+            if (currentUserProfile) {
+                document.getElementById('postOwnerName').value = currentUserProfile.name || '';
+                if (currentUserProfile.rawPhone) {
+                    document.getElementById('postOwnerPhone').value = currentUserProfile.rawPhone;
+                }
+            }
+            setPostDefaultCoords(currentCity);
+            document.getElementById('postCity').value = currentCity;
+            document.getElementById('postPropertyModal').classList.remove('hidden');
+
+            // Initialize or refresh interactive mini-map for pin dropping
+            setTimeout(() => {
+                initOrUpdatePostMiniMap();
+            }, 200);
+        };
+
+        function initOrUpdatePostMiniMap() {
+            const lat = parseFloat(document.getElementById('postLat').value) || 12.9716;
+            const lng = parseFloat(document.getElementById('postLng').value) || 77.5946;
+
+            if (!postMiniMap) {
+                postMiniMap = L.map('postMiniMap').setView([lat, lng], 13);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OSM',
+                    maxZoom: 19
+                }).addTo(postMiniMap);
+
+                postMiniMarker = L.marker([lat, lng], { draggable: true }).addTo(postMiniMap);
+
+                postMiniMap.on('click', (e) => {
+                    const { lat: cLat, lng: cLng } = e.latlng;
+                    postMiniMarker.setLatLng([cLat, cLng]);
+                    document.getElementById('postLat').value = cLat.toFixed(5);
+                    document.getElementById('postLng').value = cLng.toFixed(5);
+                });
+
+                postMiniMarker.on('dragend', () => {
+                    const pos = postMiniMarker.getLatLng();
+                    document.getElementById('postLat').value = pos.lat.toFixed(5);
+                    document.getElementById('postLng').value = pos.lng.toFixed(5);
+                });
+            } else {
+                postMiniMap.invalidateSize();
+                postMiniMap.setView([lat, lng], 13);
+                postMiniMarker.setLatLng([lat, lng]);
+            }
+        }
+
+        window.updateMiniMapFromInputs = function() {
+            const lat = parseFloat(document.getElementById('postLat').value);
+            const lng = parseFloat(document.getElementById('postLng').value);
+            if (!isNaN(lat) && !isNaN(lng) && postMiniMap && postMiniMarker) {
+                postMiniMarker.setLatLng([lat, lng]);
+                postMiniMap.panTo([lat, lng]);
+            }
+        };
+
+        window.closePostPropertyModal = function() {
+            document.getElementById('postPropertyModal').classList.add('hidden');
+        };
+
+        window.updatePostPriceLabels = function() {
+            const mode = document.getElementById('postMode').value;
+            const priceLabel = document.getElementById('postPriceLabel');
+            const depositLabel = document.getElementById('postDepositLabel');
+            if (mode === 'rent') {
+                priceLabel.textContent = "Monthly Rent (₹) *";
+                depositLabel.textContent = "Security Deposit / Advance";
+            } else {
+                priceLabel.textContent = "Total Sale Price (₹) *";
+                depositLabel.textContent = "Approval Info (e.g. RERA / Patta)";
+            }
+        };
+
+        window.setPostDefaultCoords = function(cityKey) {
+            const city = CITY_CONFIG[cityKey];
+            if (!city) return;
+            const latOffset = (Math.random() - 0.5) * 0.025;
+            const lngOffset = (Math.random() - 0.5) * 0.025;
+            const newLat = (city.coords[0] + latOffset).toFixed(5);
+            const newLng = (city.coords[1] + lngOffset).toFixed(5);
+            document.getElementById('postLat').value = newLat;
+            document.getElementById('postLng').value = newLng;
+            if (postMiniMap && postMiniMarker) {
+                postMiniMap.setView([newLat, newLng], 13);
+                postMiniMarker.setLatLng([newLat, newLng]);
+            }
+        };
+
+        window.useCurrentMapCenterForPost = function() {
+            if (!map) return;
+            const center = map.getCenter();
+            document.getElementById('postLat').value = center.lat.toFixed(5);
+            document.getElementById('postLng').value = center.lng.toFixed(5);
+            updateMiniMapFromInputs();
+            showToast("Pinned to current map center!");
+        };
+
+        window.submitNewProperty = async function(event) {
+            event.preventDefault();
+            const mode = document.getElementById('postMode').value;
+            const category = document.getElementById('postCategory').value;
+            const title = document.getElementById('postTitle').value.trim();
+            const city = document.getElementById('postCity').value;
+            const locality = document.getElementById('postLocality').value.trim();
+            const price = Number(document.getElementById('postPrice').value);
+            const deposit = document.getElementById('postDeposit').value.trim() || (mode === 'rent' ? 'Negotiable Deposit' : 'Direct Owner Clear Title');
+            const sqft = Number(document.getElementById('postSqft').value);
+            const bhk = document.getElementById('postBhk').value;
+            const furnishing = document.getElementById('postFurnishing').value;
+            const water = document.getElementById('postWater').value;
+            const lat = parseFloat(document.getElementById('postLat').value);
+            const lng = parseFloat(document.getElementById('postLng').value);
+            const noBrokerage = document.getElementById('postNoBrokerage').checked;
+            const bachelorFriendly = document.getElementById('postBachelor').checked;
+            const nearMetro = document.getElementById('postMetro').checked;
+            const ownerName = document.getElementById('postOwnerName').value.trim();
+            const ownerPhone = document.getElementById('postOwnerPhone').value.trim();
+
+            const newProp = {
+                id: "prop-user-" + Date.now(),
+                mode,
+                city,
+                locality,
+                title,
+                category,
+                bhk,
+                price,
+                priceShort: formatINRShort(price, mode),
+                deposit,
+                sqft,
+                furnishing,
+                water,
+                parking: "Covered Parking",
+                facing: "East Facing",
+                noBrokerage,
+                bachelorFriendly,
+                nearMetro,
+                lat,
+                lng,
+                ownerName,
+                ownerPhone,
+                rating: "New",
+                image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80"
+            };
+
+            allProperties.unshift(newProp);
+
+            // Save to Cloud Firestore if available
+            if (firebaseUser && db) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'properties', newProp.id);
+                    await setDoc(docRef, newProp);
+                } catch (e) {
+                    console.warn("Saved locally:", e);
+                }
+            }
+
+            closePostPropertyModal();
+            setListingMode(mode);
+            handleCityChange(city);
+            setTimeout(() => {
+                if (map) map.flyTo([lat, lng], 15, { duration: 1.2 });
+            }, 300);
+            showToast("Your space is now live on the 2Walls Map!");
+        };
+
+        // --- 12. MAP & VIEW TOGGLES (MOBILE + DESKTOP) ---
+        window.toggleFullMapDesktop = function() {
+            isFullMapDesktop = !isFullMapDesktop;
+            const listPanel = document.getElementById('listPanel');
+            const mapPanel = document.getElementById('mapPanel');
+            const expandText = document.getElementById('expandMapText');
+
+            if (isFullMapDesktop) {
+                listPanel.classList.add('lg:hidden');
+                mapPanel.className = "w-full h-full relative bg-slate-200";
+                expandText.textContent = "Split View";
+            } else {
+                listPanel.classList.remove('lg:hidden');
+                mapPanel.className = "hidden lg:block lg:w-[46%] xl:w-[48%] h-full relative bg-slate-200 border-l border-slate-200";
+                expandText.textContent = "Full Map";
+            }
+            setTimeout(() => map && map.invalidateSize(), 250);
+        };
+
+        window.toggleMobileView = function() {
+            isMobileMapOpen = !isMobileMapOpen;
+            const listPanel = document.getElementById('listPanel');
+            const mapPanel = document.getElementById('mapPanel');
+            const toggleText = document.getElementById('mobileToggleText');
+
+            if (isMobileMapOpen) {
+                listPanel.classList.add('hidden');
+                mapPanel.classList.remove('hidden');
+                mapPanel.classList.add('w-full');
+                toggleText.textContent = "List View";
+            } else {
+                mapPanel.classList.add('hidden');
+                listPanel.classList.remove('hidden');
+                toggleText.textContent = "Map View";
+            }
+            setTimeout(() => map && map.invalidateSize(), 250);
+        };
+
+        window.locateUserOnMap = function() {
+            if (!navigator.geolocation) {
+                showToast("Geolocation is not supported by your browser");
+                return;
+            }
+            showToast("Locating your GPS position...");
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    if (map) {
+                        map.flyTo([latitude, longitude], 14, { duration: 1.2 });
+                        L.circleMarker([latitude, longitude], {
+                            radius: 8,
+                            fillColor: "#e11d48",
+                            color: "#ffffff",
+        // --- 13. DEPLOY GUIDE, CLIPBOARD COPY & TOAST HELPERS ---
+        window.openDeployGuideModal = function() {
+            document.getElementById('deployGuideModal').classList.remove('hidden');
+        };
+        window.closeDeployGuideModal = function() {
+            document.getElementById('deployGuideModal').classList.add('hidden');
+        };
+
+        window.copyAdSenseSnippet = function() {
+            const snippet = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_PUBLISHER_ID" crossorigin="anonymous"><\/script>`;
+            const tempInput = document.createElement('textarea');
+            tempInput.value = snippet;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast("AdSense <script> snippet copied to clipboard!");
+        };
+
+        let toastTimer = null;
+        window.showToast = function(msg) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.remove('hidden');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3400);
+        };
+
+        // --- 14. INITIALIZE ON LOAD ---
+        window.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            renderLocalityBar();
+            applyFilters();
+            initFirebaseBackend();
+        });
+    </script>
 </body>
 </html>
